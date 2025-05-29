@@ -21,8 +21,9 @@ async def get_movie_list(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No movies found.")
     total_pages = math.ceil(total_items / per_page)
     offset = (page - 1) * per_page
-    result = await db.scalars(select(MovieModel).offset(offset).limit(per_page))
-    movies = result.all()
+    stmt = select(MovieModel).offset(offset).limit(per_page)
+    result = await db.execute(stmt)
+    movies = result.scalars().all()
     if not movies:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No movies found.")
     base_url = request.url.path
